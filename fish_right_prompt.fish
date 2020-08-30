@@ -1,4 +1,4 @@
-# right prompt for agnoster theme
+# right prompt for paradox theme
 # shows vim mode status
 
 # ===========================
@@ -6,7 +6,7 @@
 
 # You can set these variables in config.fish like:
 # set -g color_dir_bg red
-# If not set, default color from agnoster will be used.
+# If not set, default color from paradox will be used.
 # ===========================
 set -q color_vi_mode_indicator; or set color_vi_mode_indicator black
 set -q color_vi_mode_normal; or set color_vi_mode_normal green
@@ -73,7 +73,19 @@ function prompt_vi_mode -d 'vi mode status indicator'
     end
 end
 
+function prompt_time -d 'Prints time'
+  set_color blue
+  echo -e "["
+  set_color green
+  date '+%H:%M:%S'
+  set_color blue
+  echo -e "]"
+  set_color normal
+  echo -e " "
+end
+
 function fish_right_prompt -d 'Prints right prompt'
+  prompt_time
   if test "$fish_key_bindings" = "fish_vi_key_bindings"
     prompt_vi_mode
     set_color normal

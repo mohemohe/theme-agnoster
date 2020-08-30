@@ -1,6 +1,7 @@
-# name: Agnoster
-# agnoster's Theme - https://gist.github.com/3712874
-# A Powerline-inspired theme for FISH
+# name: Paradox
+# Prezto's Paradox Theme - https://github.com/sorin-ionescu/prezto/blob/master/modules/prompt/functions/prompt_paradox_setup
+#
+# A two-line, Powerline-inspired theme that displays contextual information.
 #
 # # README
 #
@@ -8,9 +9,9 @@
 # [Powerline-patched font](https://gist.github.com/1595572).
 
 ## Set this options in your config.fish (if you want to :])
-# set -g theme_display_user yes
+set -g theme_display_user yes
 # set -g theme_hide_hostname yes
-# set -g theme_hide_hostname no
+set -g theme_hide_hostname no
 # set -g default_user your_normal_user
 
 
@@ -31,14 +32,18 @@ set -q scm_prompt_blacklist; or set scm_prompt_blacklist
 set -q color_virtual_env_bg; or set color_virtual_env_bg white
 set -q color_virtual_env_str; or set color_virtual_env_str black
 set -q color_user_bg; or set color_user_bg black
-set -q color_user_str; or set color_user_str yellow
+set -q color_user_str; or set color_user_str blue
+set -q color_at_bg; or set color_at_bg black
+set -q color_at_str; or set color_at_str red
+set -q color_host_bg; or set color_host_bg black
+set -q color_host_str; or set color_host_str green
 set -q color_dir_bg; or set color_dir_bg blue
 set -q color_dir_str; or set color_dir_str black
 set -q color_hg_changed_bg; or set color_hg_changed_bg yellow
 set -q color_hg_changed_str; or set color_hg_changed_str black
 set -q color_hg_bg; or set color_hg_bg green
 set -q color_hg_str; or set color_hg_str black
-set -q color_git_dirty_bg; or set color_git_dirty_bg yellow
+set -q color_git_dirty_bg; or set color_git_dirty_bg green
 set -q color_git_dirty_str; or set color_git_dirty_str black
 set -q color_git_bg; or set color_git_bg green
 set -q color_git_str; or set color_git_str black
@@ -106,17 +111,29 @@ function prompt_segment -d "Function to draw a segment"
   if [ "$current_bg" != 'NONE' -a "$argv[1]" != "$current_bg" ]
     set_color -b $bg
     set_color $current_bg
-    echo -n "$segment_separator "
+    if [ "$argv[4]" = 1 ]
+      echo -n "$segment_separator"
+    else
+      echo -n "$segment_separator "
+    end
     set_color -b $bg
     set_color $fg
   else
     set_color -b $bg
     set_color $fg
-    echo -n " "
+    if [ "$argv[4]" = 1 ]
+      echo -n ""
+    else
+      echo -n " "
+    end
   end
   set current_bg $argv[1]
   if [ -n "$argv[3]" ]
-    echo -n -s $argv[3] " "
+    if [ "$argv[5]" = 1 ]
+      echo -n -s $argv[3]
+    else
+      echo -n -s $argv[3] " "
+    end
   end
 end
 
@@ -127,6 +144,10 @@ function prompt_finish -d "Close open segments"
     echo -n "$segment_separator "
     set_color normal
   end
+  echo
+  set_color blue
+  echo -n " ❯ "
+  set_color normal
   set -g current_bg NONE
 end
 
@@ -158,11 +179,12 @@ function prompt_user -d "Display current user if different from $default_user"
       set USER (whoami)
       get_hostname
       if [ $HOSTNAME_PROMPT ]
-        set USER_PROMPT $USER@$HOSTNAME_PROMPT
+        prompt_segment $color_user_bg $color_user_str $USER 0 1
+        prompt_segment $color_at_bg $color_at_str @ 1 1
+        prompt_segment $color_host_bg $color_host_str $HOSTNAME_PROMPT 1 0
       else
-        set USER_PROMPT $USER
+        prompt_segment $color_user_bg $color_user_str $USER
       end
-      prompt_segment $color_user_bg $color_user_str $USER_PROMPT
     end
   else
     get_hostname
@@ -284,6 +306,7 @@ end
 # ===========================
 
 function fish_prompt
+  echo '‌'
   set -g RETVAL $status
   prompt_status
   prompt_virtual_env
